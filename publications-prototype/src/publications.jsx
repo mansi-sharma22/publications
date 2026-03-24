@@ -6,13 +6,6 @@ const FIELDS = [
 ];
 
 const INITIAL = [
-  { id: 1, title: "Robust Federated Learning Under Byzantine Attacks via Adaptive Gradient Clipping", authors: "Arjun Mehta, Priya Nair, Siddharth Rao, Kavya Krishnan", venue: "NeurIPS", year: "2024", field: "Machine Learning", abstract: "We propose AdaClip, a gradient clipping strategy that dynamically adjusts per-round to the empirical gradient distribution, achieving state-of-the-art robustness against Byzantine workers.", link: "#" },
-  { id: 2, title: "Spectral Graph Transformers for Long-Range Dependency Modelling in Molecular Property Prediction", authors: "Kavya Krishnan, Rohit Joshi", venue: "ICML", year: "2024", field: "Graphs & Networks", abstract: "We introduce Spectral Graph Transformers (SGT), leveraging Laplacian eigenvectors as positional encodings within the transformer attention mechanism for molecular graphs.", link: "#" },
-  { id: 3, title: "On the Generalization Bounds of Sparse Mixture-of-Experts Models", authors: "Siddharth Rao, Arjun Mehta", venue: "ICLR", year: "2024", field: "Theory", abstract: "We derive tight PAC-Bayes generalization bounds for sparse MoE models, providing theoretical grounding for architectural choices in large-scale language model training.", link: "#" },
-  { id: 4, title: "CausalBench: A Benchmark Suite for Evaluating Causal Reasoning in Large Language Models", authors: "Nandini Varma, Priya Nair, Arjun Mehta", venue: "ACL", year: "2023", field: "NLP", abstract: "We introduce CausalBench, comprising 12 diverse tasks spanning counterfactual reasoning, intervention prediction, and causal graph discovery.", link: "#" },
-  { id: 5, title: "Privacy-Preserving Graph Neural Networks via Differentially Private Message Passing", authors: "Rohit Joshi, Kavya Krishnan, Deepa Subramaniam", venue: "KDD", year: "2023", field: "Privacy & Security", abstract: "We formalize edge-level and node-level differential privacy guarantees for the message-passing framework and propose DP-GNN with rigorous privacy analysis.", link: "#" },
-  { id: 6, title: "Diffusion Models for Inverse Problems in Medical Imaging", authors: "Deepa Subramaniam, Nandini Varma", venue: "MICCAI", year: "2023", field: "Medical AI", abstract: "We unify score-based diffusion models for MRI reconstruction, CT denoising, and PET attenuation correction, achieving competitive performance with 10× fewer labeled examples.", link: "#" },
-  { id: 7, title: "Topology-Aware Sampling Strategies for Contrastive Learning on Hyperbolic Manifolds", authors: "Arjun Mehta, Siddharth Rao", venue: "AAAI", year: "2023", field: "Machine Learning", abstract: "Contrastive learning in Euclidean space ignores hierarchical structure. We propose Hyperbolic Contrastive Learning (HCL) with curvature-aware negative sampling.", link: "#" },
 ];
 
 const EMPTY_FORM = { title: "", authors: "", venue: "", year: "", field: "", abstract: "", link: "" };
@@ -124,7 +117,7 @@ const css = `
 `;
 
 export default function App() {
-  const [pubs, setPubs] = useState(INITIAL);
+  const [pubs, setPubs] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({});
@@ -132,7 +125,14 @@ export default function App() {
   const [activeField, setActiveField] = useState(null);
   const [activeYear, setActiveYear] = useState(null);
   const [search, setSearch] = useState("");
-
+    useEffect(() => {
+    fetch("http://localhost:3000/api/publications")
+      .then(res => res.json())
+      .then(data => {
+        setPubs(data.data);
+      })
+      .catch(err => console.error(err));
+  }, []);
   const years = useMemo(() =>
     [...new Set(pubs.map(p => p.year).filter(Boolean))].sort((a, b) => b - a),
     [pubs]
@@ -168,7 +168,7 @@ export default function App() {
   const yearRange = years.length > 1 ? `${years[years.length - 1]}–${years[0]}` : years[0] || "";
 
   useEffect(() => {
-    // Force the React mount point and all its ancestors to full width
+    
     let el = document.currentScript?.parentElement || document.getElementById("root") || document.body.firstElementChild;
     while (el && el !== document.body) {
       el.style.display = "block";
